@@ -1,10 +1,22 @@
 # Secrets — never commit the real API key
-StoryBrew/Resources/Secrets.plist
+.env
+.env*.local
 
-# Xcode
-xcuserdata/
-*.xcuserstate
-DerivedData/
-build/
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts.bak
+
+# Native build output (if you run `expo prebuild`)
+/ios
+/android
+
+# Misc
+*.log
 .DS_Store
-*.swiftpm
+npm-debug.*
+yarn-error.*
