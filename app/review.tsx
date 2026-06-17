@@ -76,7 +76,9 @@ export default function ReviewScreen() {
           fill={colors.like}
           onPress={() => {
             approve(draft);
-            router.replace('/');
+            // Close the create/review modal flow and return to the playlist.
+            if (router.canDismiss()) router.dismissAll();
+            else router.replace('/');
           }}
           style={{ flex: 1 }}
         />
