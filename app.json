@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "StoryBrew",
+    "slug": "storybrew",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "storybrew",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "backgroundColor": "#FFF7E6"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "my.rytbank.storybrew"
+    },
+    "android": {
+      "package": "my.rytbank.storybrew",
+      "adaptiveIcon": {
+        "backgroundColor": "#FFF7E6"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router"
+    ]
+  }
+}
