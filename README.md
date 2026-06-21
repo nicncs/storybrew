@@ -101,6 +101,30 @@ package versions with the SDK.
 Without a key, the app falls back to a basic offline `TemplateStoryEngine` so it
 still runs everywhere for demos (lower quality, no network).
 
+## Audio output (Bluetooth / CarPlay / speakers)
+
+Playback is configured to route to whatever output is connected:
+
+- **Routing** — before playback, the app sets the OS audio session to media
+  "playback" (`expo-av` `Audio.setAudioModeAsync`). On iOS/Android this means the
+  story plays out over a connected **Bluetooth** device, **car speaker**, or
+  **CarPlay/Android Auto** audio, plays even when the ringer is on silent, and
+  keeps going with the screen locked / app backgrounded (iOS background-audio
+  mode is declared in `app.json`). On web, the browser/OS handles routing.
+- **Media controls** — on web, a playing story is published to the **Media
+  Session API**, so it shows on the OS/Bluetooth/car media controls and their
+  play/pause/stop buttons drive the app.
+
+**Limitation (scope):** native iOS/Android lock-screen & CarPlay *Now Playing*
+metadata and transport buttons are **not** wired up — that needs
+`MPNowPlayingInfoCenter` / `MPRemoteCommandCenter` (a custom native module, not
+available with on-device speech synthesis in Expo Go). Audio still **plays**
+through Bluetooth/CarPlay; it just won't show a title/artwork or accept the
+car's transport buttons on native. Reliable background playback and full car
+controls are the natural follow-up if you move to pre-rendered audio files (the
+"full Now Playing" path) — the `StoryEngine`-style seam makes that swap
+localised to the audio layer.
+
 ---
 
 **Compliance note (PDPA / data flows):** when a real API key is configured, this

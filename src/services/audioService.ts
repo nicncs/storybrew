@@ -1,6 +1,9 @@
 import * as Speech from 'expo-speech';
+import { Platform } from 'react-native';
+import { Audio, InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av';
 import { Story, StoryLine, VoiceProfile, NARRATOR_SPEAKER } from '@/models/types';
 import { NARRATOR_VOICE } from '@/models/voices';
+import { setNowPlaying, setPlaybackState, clearNowPlaying } from './mediaSession';
 
 export interface AudioState {
   currentStoryId: string | null;
@@ -35,6 +38,7 @@ export class AudioService {
   private generation = 0;
   private englishVoiceIds: string[] = [];
   private voicesLoaded = false;
+  private audioSessionReady = false;
 
   // ---- Subscription (for React) ----
 
@@ -58,6 +62,7 @@ export class AudioService {
 
   async play(story: Story): Promise<void> {
     this.stop();
+    await this.configureAudioSession();
     await this.ensureVoicesLoaded();
 
     this.lines = story.lines;
@@ -71,6 +76,16 @@ export class AudioService {
       isPaused: false,
       currentLineIndex: 0,
     });
+    // Surface the story to OS / car / Bluetooth media controls (web).
+    setNowPlaying(
+      { title: story.title, artist: story.seriesTitle ?? 'StoryBrew' },
+      {
+        onPlay: () => this.resume(story),
+        onPause: () => this.pause(),
+        onStop: () => this.stop(),
+      }
+    );
+    setPlaybackState('playing');
     this.speakFrom(0, story);
   }
 
@@ -79,11 +94,13 @@ export class AudioService {
     this.setState({ isPaused: true });
     this.generation += 1; // invalidate the in-flight line's onDone
     Speech.stop();
+    setPlaybackState('paused');
   }
 
   resume(story: Story): void {
     if (!this.state.isPlaying || !this.state.isPaused) return;
     this.setState({ isPaused: false });
+    setPlaybackState('playing');
     this.speakFrom(this.state.currentLineIndex ?? 0, story);
   }
 
@@ -105,6 +122,36 @@ export class AudioService {
       isPaused: false,
       currentLineIndex: null,
     });
+    clearNowPlaying();
+  }
+
+  /**
+   * Configure the OS audio session for media playback (once). This is what lets
+   * the story route to a connected Bluetooth device, car speaker, or CarPlay,
+   * play even when the ringer is on silent, and keep playing with the screen
+   * locked / app backgrounded (iOS background audio mode is set in app.json).
+   * No-op on web, where output routing is handled by the browser/OS.
+   */
+  private async configureAudioSession(): Promise<void> {
+    if (this.audioSessionReady || Platform.OS === 'web') {
+      this.audioSessionReady = true;
+      return;
+    }
+    try {
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: true,
+        interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+        shouldDuckAndroid: false,
+        interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
+        playThroughEarpieceAndroid: false,
+      });
+    } catch {
+      // If the session can't be configured we still attempt playback; it just
+      // won't get background/route benefits.
+    }
+    this.audioSessionReady = true;
   }
 
   // ---- Internals ----

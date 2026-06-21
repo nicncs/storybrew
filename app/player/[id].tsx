@@ -135,14 +135,17 @@ export default function PlayerScreen() {
       </ScrollView>
 
       <View style={[styles.playBar, { paddingBottom: insets.bottom + 12 }]}>
-        <BigButton
-          label={playLabel}
-          onPress={() => audio.togglePlayPause(story)}
-          style={{ flex: 1 }}
-        />
-        {isCurrent && (
-          <BigButton label="⏹️" fill={colors.dislike} onPress={() => audio.stop()} style={{ width: 72 }} />
-        )}
+        <View style={styles.controlsRow}>
+          <BigButton
+            label={playLabel}
+            onPress={() => audio.togglePlayPause(story)}
+            style={{ flex: 1 }}
+          />
+          {isCurrent && (
+            <BigButton label="⏹️" fill={colors.dislike} onPress={() => audio.stop()} style={{ width: 72 }} />
+          )}
+        </View>
+        <Text style={styles.routeHint}>🔊 Plays on your speaker, Bluetooth, or CarPlay</Text>
       </View>
     </View>
   );
@@ -181,12 +184,17 @@ const styles = StyleSheet.create({
   deleteLink: { alignItems: 'center', marginTop: 18, padding: 8 },
   deleteText: { color: colors.dislike, fontSize: 15, fontWeight: fonts.semibold },
   playBar: {
-    flexDirection: 'row',
-    gap: 12,
     padding: 16,
     paddingTop: 10,
     backgroundColor: colors.background,
     borderTopWidth: 1,
     borderTopColor: '#00000010',
+  },
+  controlsRow: { flexDirection: 'row', gap: 12 },
+  routeHint: {
+    textAlign: 'center',
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 8,
   },
 });

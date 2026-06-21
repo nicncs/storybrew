@@ -12,7 +12,12 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "my.rytbank.storybrew"
+      "bundleIdentifier": "my.rytbank.storybrew",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "audio"
+        ]
+      }
     },
     "android": {
       "package": "my.rytbank.storybrew",
